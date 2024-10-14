@@ -4,3 +4,4 @@
   entry: ./run_translations_checker.sh  # The entry point script
   language: system
   files: \.(js|jsx|ts|tsx)$
+  install: ./install.sh
