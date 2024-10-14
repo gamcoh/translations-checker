@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
-use clap::Parser;
+use clap::Arg;
+use clap::Command;
 use fancy_regex::Regex;
-use git2::{Repository, StatusOptions};
 use once_cell::sync::Lazy;
 use serde_json::Value;
 use std::{
@@ -10,37 +10,39 @@ use std::{
     path::Path,
 };
 
-#[derive(Parser, Debug)]
-struct Cli {
-    #[clap(short, long)]
-    json_file: String,
-}
-
 static COMPILED_RE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"(?<![a-zA-Z_])t\(\s*(['"])(.*?)\1\s*\)"#).unwrap());
 
 fn main() -> Result<()> {
-    let args = Cli::parse();
-    let repo = Repository::open(".").context("Couldn't open the repository")?;
+    let matches = Command::new("translation_checker")
+        .version(env!("CARGO_PKG_VERSION"))
+        .about("This hook checks for missing translations in TypeScript and JavaScript files.")
+        .author("Gamliel Cohen @gamcoh")
+        .arg(
+            Arg::new("files")
+                .help("path(s) to files to check")
+                .required(true)
+                .value_delimiter(' '),
+        )
+        .arg(
+            Arg::new("json-file")
+                .help("The JSON file to use")
+                .long("json-file")
+                .required(true),
+        )
+        .get_matches();
 
-    let mut status_opts = StatusOptions::new();
-    status_opts
-        .include_untracked(true)
-        .recurse_ignored_dirs(false);
-    let statuses = repo
-        .statuses(Some(&mut status_opts))
-        .context("Couldn't get the status of the repository")?;
+    let mut translations = HashSet::new();
+    if let Some(files) = matches.get_many::<String>("files") {
+        for file in files {
+            translations.extend(process_file(file)?);
+        }
+    }
 
-    let translations = statuses
-        .iter()
-        .map(|file| process_file(file.path().unwrap()))
-        .collect::<Result<Vec<_>>>()?
-        .into_iter()
-        .flatten()
-        .collect::<HashSet<_>>();
-
-    parse_and_add_translations(&translations, &args.json_file)?;
-    println!("Done adding translations to {}, you should review the newly added translations entries and add the correct values.", args.json_file);
+    if let Some(translation_file) = matches.get_one::<String>("json-file") {
+        parse_and_add_translations(&translations, translation_file)?;
+        println!("Done adding translations to {}, you should review the newly added translations entries and add the correct values.", translation_file);
+    }
 
     Ok(())
 }

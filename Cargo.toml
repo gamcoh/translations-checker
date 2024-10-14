@@ -1,5 +1,5 @@
 [package]
-name = "translation_react_checker"
+name = "translation_checker"
 version = "0.1.0"
 edition = "2021"
 
