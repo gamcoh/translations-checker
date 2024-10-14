@@ -9,18 +9,20 @@ struct Cli {
 }
 
 fn main() {
-    // Use `clap` to handle arguments if needed
     let args = Cli::parse();
-    println!("{:?}", args);
+    println!("JSON file: {}", args.json_file);
 
     let repo = Repository::open(".").expect("Couldn't open the repository");
-    let index = repo.index().expect("Unable to get index");
-
-    println!("{:?}", index.path());
+    let index = repo.index().expect("Couldn't get the index");
 
     // Iterate over the staged files
     for entry in index.iter() {
         let path = Path::new(std::str::from_utf8(&entry.path).unwrap());
-        println!("Staged file: {:?}", path);
+        process_file(path);
     }
+}
+
+fn process_file(file: &Path) {
+    // Read the file and do something with it
+    println!("Processing file: {:?}", file);
 }
