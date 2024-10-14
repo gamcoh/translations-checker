@@ -72,7 +72,7 @@ Example:
 translation-checker-precommit/
 ├── src/                     # Rust source code
 ├── target/                  # Compiled binaries
-├── run_translation_checker.sh # Shell script to invoke the Rust binary
+├── run_translations_checker.sh # Shell script to invoke the Rust binary
 ├── .pre-commit-hooks.yaml   # Pre-commit hook configuration
 └── README.md                # Project documentation
 ```
