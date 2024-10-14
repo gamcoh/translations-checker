@@ -1,7 +1,7 @@
 - id: translation-checker
   name: Translation Checker
-  description: This hook checks for missing translations in TypeScript or JavaScript files.
-  entry: ./run_translations_checker.sh  # The entry point script
-  language: system
+  description: This hook checks for missing translations in TypeScript and JavaScript files.
+  entry: translation_react_checker  # The entry point script
+  language: rust
   files: \.(js|jsx|ts|tsx)$
   install: ./install.sh
