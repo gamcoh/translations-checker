@@ -1,0 +1,6 @@
+- id: translation-checker
+  name: Translation Checker
+  description: This hook checks for missing translations in TypeScript or JavaScript files.
+  entry: ./run_translation_checker.sh  # The entry point script
+  language: system
+  files: \.(js|jsx|ts|tsx)$
