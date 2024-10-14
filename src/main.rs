@@ -22,7 +22,7 @@ fn main() -> Result<()> {
             Arg::new("files")
                 .help("path(s) to files to check")
                 .required(true)
-                .value_delimiter(' '),
+                .num_args(1..),
         )
         .arg(
             Arg::new("json-file")
@@ -42,6 +42,11 @@ fn main() -> Result<()> {
     if let Some(translation_file) = matches.get_one::<String>("json-file") {
         parse_and_add_translations(&translations, translation_file)?;
         println!("Done adding translations to {}, you should review the newly added translations entries and add the correct values.", translation_file);
+    }
+
+    if !translations.is_empty() {
+        eprintln!("Found {} missing translations", translations.len());
+        std::process::exit(1);
     }
 
     Ok(())
