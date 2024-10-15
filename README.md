@@ -28,7 +28,7 @@
 
    ```yaml
    - repo: https://github.com/gamcoh/translations-checker
-     rev: v0.1.0  # Use the latest release
+     rev: v0.1.8  # Use the latest release
      hooks:
      - id: translation-checker
        args: ["--json-file", "localization/fr.json"]
@@ -60,7 +60,7 @@ Example:
 
 ```yaml
 - repo: https://github.com/gamcoh/translations-checker
-  rev: v0.1.0
+  rev: v0.1.8
   hooks:
   - id: translation-checker
     args: ["--json-file", "path/to/fr.json"]
@@ -72,6 +72,7 @@ Example:
 translation-checker-precommit/
 ├── src/                     # Rust source code
 ├── target/                  # Compiled binaries
+├── examples/                # Example TSX file and fr.json
 ├── run_translations_checker.sh # Shell script to invoke the Rust binary
 ├── .pre-commit-hooks.yaml   # Pre-commit hook configuration
 └── README.md                # Project documentation
@@ -94,12 +95,8 @@ translation-checker-precommit/
 3. Run the binary directly to test it locally:
 
    ```bash
-   ./target/release/translation_checker --json-file localization/fr.json
+   ./target/release/translation_checker --json-file examples/fr.json examples/main.tsx
    ```
-
-## 🛡️ Security
-
-The `translation-checker-precommit` uses `git2` to access your staged files and check for translation keys. It only runs on files that are staged for commit, and no data is transmitted or stored externally.
 
 ## 🤝 Contributing
 
@@ -131,9 +128,3 @@ If you find this tool helpful, please give it a ⭐️ on GitHub and share it wi
 
 **Happy Coding! 💻**
 
----
-
-### Badges and Links
-
-- **Repository**: [translation-checker-precommit](https://github.com/gamcoh/translations-checker)
-- **License**: [MIT](https://opensource.org/licenses/MIT)
