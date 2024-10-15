@@ -2,13 +2,10 @@ use anyhow::{anyhow, Context, Result};
 use clap::Arg;
 use clap::Command;
 use fancy_regex::Regex;
+use indexmap::IndexMap;
 use once_cell::sync::Lazy;
 use serde_json::Value;
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-    path::Path,
-};
+use std::{collections::HashSet, fs, path::Path};
 
 static COMPILED_RE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"(?<![a-zA-Z_])t\(\s*(['"])(.*?)\1\s*\)"#).unwrap());
@@ -40,31 +37,33 @@ fn main() -> Result<()> {
     }
 
     if let Some(translation_file) = matches.get_one::<String>("json-file") {
-        parse_and_add_translations(&translations, translation_file)?;
-    }
+        let count = parse_and_add_translations(&translations, translation_file)?;
 
-    if !translations.is_empty() {
-        eprintln!(
-            "Found {} missing translations. TODOs added to the JSON file.",
-            translations.len()
-        );
-        std::process::exit(1);
+        if count > 0 {
+            eprintln!(
+                "Found {} missing translations. TODOs added to the JSON file.",
+                count
+            );
+            std::process::exit(1);
+        }
     }
 
     Ok(())
 }
 
-fn parse_and_add_translations(translations: &HashSet<String>, json_file: &str) -> Result<()> {
+fn parse_and_add_translations(translations: &HashSet<String>, json_file: &str) -> Result<u16> {
     let json_content = fs::read_to_string(json_file)
         .with_context(|| format!("Couldn't read the JSON file {}", json_file))?;
-    let mut json: HashMap<String, Value> =
+    let mut json: IndexMap<String, Value> =
         serde_json::from_str(&json_content).with_context(|| "Couldn't parse the JSON content")?;
 
+    let mut missing_translations_count = 0;
     for translation in translations {
-        json.entry(translation.clone()).or_insert_with(|| {
+        if !json.contains_key(translation) {
+            missing_translations_count += 1;
             println!("Adding translation: {}", translation);
-            Value::String(String::from("TODO"))
-        });
+            json.insert(translation.to_string(), Value::String(String::from("TODO")));
+        }
     }
 
     let json_content =
@@ -72,7 +71,7 @@ fn parse_and_add_translations(translations: &HashSet<String>, json_file: &str) -
     fs::write(json_file, json_content)
         .with_context(|| format!("Couldn't write the JSON file {}", json_file))?;
 
-    Ok(())
+    Ok(missing_translations_count)
 }
 
 fn process_file(file: &str) -> Result<Vec<String>> {

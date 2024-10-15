@@ -1,1 +1,6 @@
-{}
+{
+  "test1": "Bonjour",
+  "test2": "Bonjour {name}",
+  "zero": "zero",
+  "absent": "absent"
+}
