@@ -36,6 +36,10 @@ fn main() -> Result<()> {
         }
     }
 
+    if translations.is_empty() {
+        return Ok(());
+    }
+
     if let Some(translation_file) = matches.get_one::<String>("json-file") {
         let count = parse_and_add_translations(&translations, translation_file)?;
 
@@ -64,6 +68,10 @@ fn parse_and_add_translations(translations: &HashSet<String>, json_file: &str) -
             println!("Adding translation: {}", translation);
             json.insert(translation.to_string(), Value::String(String::from("TODO")));
         }
+    }
+
+    if missing_translations_count == 0 {
+        return Ok(0);
     }
 
     let json_content =
