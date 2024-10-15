@@ -41,11 +41,13 @@ fn main() -> Result<()> {
 
     if let Some(translation_file) = matches.get_one::<String>("json-file") {
         parse_and_add_translations(&translations, translation_file)?;
-        println!("Done adding translations to {}, you should review the newly added translations entries and add the correct values.", translation_file);
     }
 
     if !translations.is_empty() {
-        eprintln!("Found {} missing translations", translations.len());
+        eprintln!(
+            "Found {} missing translations. TODOs added to the JSON file.",
+            translations.len()
+        );
         std::process::exit(1);
     }
 
