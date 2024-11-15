@@ -284,7 +284,7 @@ dependencies = [
 
 [[package]]
 name = "translation_checker"
-version = "0.1.4"
+version = "0.1.9"
 dependencies = [
  "anyhow",
  "clap",

@@ -4,12 +4,12 @@ import React from "react";
 import Breadcrumb from "src/layouts/full/shared/breadcrumb/Breadcrumb";
 import PageContainer from "src/components/container/PageContainer";
 import EventListing from "src/components/apps/events/EventListing";
-import { useTranslation } from "react-i18next";
+import { getTranslations } from "./server";
 import { useSelector } from "src/store/Store";
 import { Box, Button, Grid, Typography } from "@mui/material";
 
-const Blog = () => {
-  const { t } = useTranslation("/page");
+const Blog = async () => { // For instance a Next.js page
+  const t = await getTranslations("/page2");
   const client = useSelector((state) => state.client.client);
 
   return (
