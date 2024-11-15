@@ -9,6 +9,8 @@ use std::{collections::HashSet, fs, path::Path};
 
 static COMPILED_RE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"(?<![a-zA-Z_])t\(\s*(['"])(.*?)\1\s*\)"#).unwrap());
+static COMPILED_HOOK_RE: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"(useTranslation|getTranslations)\(("|')(.+?)\2\)"#).unwrap());
 
 fn main() -> Result<()> {
     let matches = Command::new("translation_checker")
@@ -113,11 +115,42 @@ fn process_file(file: &str) -> Result<Vec<String>> {
 fn extract_translations_from_file(file: &Path) -> Result<Vec<String>> {
     let content =
         fs::read_to_string(file).with_context(|| format!("Couldn't read file {:?}", file))?;
+
+    let translations_hooks = COMPILED_HOOK_RE
+        .captures_iter(&content)
+        .filter_map(|cap| {
+            cap.ok().and_then(|c| {
+                c.get(3).map(|m| {
+                    let mut r = m.as_str().to_string();
+                    r.push_str(".");
+                    r
+                })
+            })
+        })
+        .collect::<Vec<String>>();
+
+    if translations_hooks.len() > 1 {
+        return Err(anyhow!(
+            "Found more than one translation hook in file {:?}",
+            file
+        ));
+    }
+
     let translations = COMPILED_RE
         .captures_iter(&content)
         .filter_map(|cap| {
-            cap.ok()
-                .and_then(|c| c.get(2).map(|m| m.as_str().to_string()))
+            cap.ok().and_then(|c| {
+                c.get(2).map(|m| {
+                    let mut r = m.as_str().to_string();
+
+                    if translations_hooks.is_empty() {
+                        return r;
+                    }
+
+                    r.insert_str(0, translations_hooks[0].as_str());
+                    r
+                })
+            })
         })
         .collect();
     Ok(translations)

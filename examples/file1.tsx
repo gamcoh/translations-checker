@@ -6,10 +6,10 @@ import PageContainer from "src/components/container/PageContainer";
 import EventListing from "src/components/apps/events/EventListing";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "src/store/Store";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 
 const Blog = () => {
-  const { t } = useTranslation("/page");
+  const { t } = useTranslation();
   const client = useSelector((state) => state.client.client);
 
   return (
